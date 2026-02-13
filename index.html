@@ -1689,41 +1689,7 @@
             cursor: not-allowed;
         }
 
-        /* Salary Tables */
-        .salary-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        
-        .salary-table th {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            padding: 12px;
-            text-align: left;
-            color: var(--dark);
-            font-weight: 700;
-            border-bottom: 2px solid var(--light-2);
-            font-size: 13px;
-        }
-        
-        .salary-table td {
-            padding: 12px;
-            border-bottom: 1px solid var(--light-2);
-            font-size: 13px;
-        }
-        
-        .salary-table tr:hover {
-            background: #f8fafc;
-        }
-        
-        .table-container {
-            overflow-x: auto;
-            margin-top: 15px;
-            border-radius: var(--radius);
-            border: 1px solid var(--light-2);
-            background: var(--white);
-            box-shadow: var(--shadow);
-        }
+        /* Salary Tables - REMOVED (no longer used) */
 
         /* --- RESPONSIVE DESIGN --- */
         @media (max-width: 768px) {
@@ -2309,6 +2275,33 @@
         
         .gmail-processing-table tr:hover {
             background: #f8fafc;
+        }
+
+        /* --- GMAIL SUMMARY CARDS (NEW) --- */
+        .gmail-summary-cards {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .gmail-summary-card {
+            flex: 1;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: var(--radius);
+            padding: 15px;
+            text-align: center;
+            border: 2px solid var(--light-2);
+        }
+        .gmail-summary-card-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+        .gmail-summary-card-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
         }
 
         /* --- UNIFIED BUTTON DESIGN --- */
@@ -3539,6 +3532,18 @@
                 <div class="page-title">Gmail Processing</div>
             </div>
             <div class="processing-container" style="padding: 20px;">
+                <!-- Gmail Summary Cards (NEW) -->
+                <div class="gmail-summary-cards">
+                    <div class="gmail-summary-card">
+                        <div class="gmail-summary-card-value" id="gmail-total-approved">৳0</div>
+                        <div class="gmail-summary-card-label">Total Approved Earnings</div>
+                    </div>
+                    <div class="gmail-summary-card">
+                        <div class="gmail-summary-card-value" id="gmail-total-pending">৳0</div>
+                        <div class="gmail-summary-card-label">Total Pending Earnings</div>
+                    </div>
+                </div>
+
                 <!-- Gmail Processing Table -->
                 <div class="form-card">
                     <h4 style="margin-bottom: 20px; color: var(--dark);">Gmail Submissions</h4>
@@ -3691,7 +3696,7 @@
             </div>
         </div>
 
-        <!-- UPDATED SALARY APPLY PAGE WITH IMPROVED UI -->
+        <!-- UPDATED SALARY APPLY PAGE WITH IMPROVED UI (HISTORY SECTIONS REMOVED) -->
         <div id="salary-apply-view" class="page-view">
             <div class="page-header">
                 <div class="back-btn" onclick="navigateTo('dashboard')">
@@ -3720,62 +3725,7 @@
                     </div>
                 </div>
                 
-                <!-- Chart-1: Salary Applications History -->
-                <div style="margin-top: 35px;">
-                    <h4 style="margin-bottom: 20px; color: var(--dark);">Salary Applications History</h4>
-                    <div class="table-container">
-                        <table class="salary-table">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Level / Package</th>
-                                    <th>Required Verified</th>
-                                    <th>User Verified (at Apply)</th>
-                                    <th>Salary Amount (৳)</th>
-                                    <th>Apply Date</th>
-                                    <th>Approved Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="salary-applications-tbody">
-                                <!-- Dynamic content will be loaded here -->
-                                <tr>
-                                    <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-light);">
-                                        <i class="fa-solid fa-inbox" style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;"></i>
-                                        <p>No salary applications yet</p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <!-- Chart-2: Salary Receive History -->
-                <div style="margin-top: 40px;">
-                    <h4 style="margin-bottom: 20px; color: var(--dark);">Salary Receive History</h4>
-                    <div class="table-container">
-                        <table class="salary-table">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Level</th>
-                                    <th>Salary Amount (৳)</th>
-                                    <th>Receive Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="salary-payments-tbody">
-                                <!-- Dynamic content will be loaded here -->
-                                <tr>
-                                    <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-light);">
-                                        <i class="fa-solid fa-money-bill-wave" style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;"></i>
-                                        <p>No salary received yet</p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <!-- 🔴 Salary Applications History & Salary Receive History SECTIONS REMOVED COMPLETELY 🔴 -->
             </div>
         </div>
 
@@ -4000,8 +3950,7 @@
         let appConfig = null;
         let appConfigListener = null;
         let salaryPackagesListener = null;
-        let salaryApplicationsListener = null;
-        let salaryPaymentsListener = null;
+        // 🔴 salaryApplicationsListener and salaryPaymentsListener REMOVED
         let withdrawPackagesListener = null;
         let gmailProcessingListener = null;
         let gmailHistoryListener = null;
@@ -4009,7 +3958,8 @@
         let supportContactsListener = null;
         let referralSummaryListener = null;
         let referralListListener = null;
-        let withdrawHistoryListener = null;
+        // ✅ Withdraw Requests Listener (replaces old withdrawHistoryListener)
+        let withdrawRequestsListener = null;
         let liveTimerInterval = null;
         let previousVerificationStatus = null;
         
@@ -4028,6 +3978,9 @@
 
         // ✅ CRITICAL FIX: Referral Requests Listener
         let referralRequestsListener = null;
+
+        // ✅ Gmail Wallet Listener (NEW)
+        let gmailWalletListener = null;
 
         // ===== FREE JOB SYSTEM GLOBAL VARIABLES =====
         let freeJobProjectsListener = null;
@@ -4778,7 +4731,7 @@
                     userData = doc.data();
                     console.log('User data updated from Firestore:', userData);
                     updateAppUI(userData);
-                    setupSalaryListeners();
+                    setupSalaryListeners();    // now only loads salary packages
                     // loadWithdrawPackages();  // 🔁 REMOVED – now wallet-wise and dynamic
                     setupWalletTypesListener(); // ✅ NEW – load wallet types for withdraw
                     setupGmailListeners();
@@ -4797,6 +4750,12 @@
                     // ✅ Setup job submissions listener
                     setupJobSubmissionsListener(uid);
                     
+                    // ✅ Setup withdraw requests listener (handles status changes and table)
+                    setupWithdrawRequestsListener(uid);
+                    
+                    // ✅ Setup Gmail wallet listener
+                    setupGmailWalletListener(uid);
+                    
                 } else {
                     logout();
                     showToast('User data not found. Please sign up again.', 'error');
@@ -4807,7 +4766,7 @@
             });
         }
 
-        // ✅ NEW: SETUP REFERRAL REQUESTS LISTENER – UPDATES REFERRAL SUMMARY & LIST
+        // ✅ NEW: SETUP REFERRAL REQUESTS LISTENER – UPDATES REFERRAL SUMMARY & LIST & WALLET
         function setupReferralRequestsListener(userId) {
             if (referralRequestsListener) {
                 referralRequestsListener();
@@ -4817,11 +4776,41 @@
                 .where('referrerId', '==', userId)
                 .onSnapshot((snapshot) => {
                     console.log('Referral requests snapshot received:', snapshot.size, 'items');
+                    
+                    // 1️⃣ Update summary counts
                     updateReferralSummary(snapshot);
+                    
+                    // 2️⃣ Detect status changes and add rewards to wallet
+                    snapshot.docChanges().forEach(change => {
+                        const doc = change.doc;
+                        const data = doc.data();
+                        
+                        if (change.type === 'modified') {
+                            const oldData = change.doc.metadata.hasPendingWrites ? null : null; // can't get old data easily
+                            // Instead, we rely on the fact that we only update wallet when status becomes 'verified'
+                            // and we haven't processed this document before. We'll use a transaction that checks current status.
+                            // To avoid double-adding, we check if the current status is 'verified' and we haven't added yet.
+                            // Since we don't track previous status, we can add a field 'rewardAdded' to the referral request.
+                            // But for simplicity and correctness, we will run a transaction that checks if the status is 'verified' 
+                            // and if the user's wallet has already been credited (by checking if the reward amount is already reflected).
+                            // This is complex. Instead, we will assume that once a referral becomes verified, we add the reward 
+                            // only once. We'll use a field 'rewardProcessed' in the referral request.
+                            
+                            // We'll implement this by checking if status === 'verified' and if the request doesn't have rewardProcessed flag.
+                            // If not, we add reward and set rewardProcessed = true.
+                            if (data.status === 'verified' && !data.rewardProcessed) {
+                                addReferralReward(userId, data.rewardAmount || 50, doc.id);
+                            }
+                        } else if (change.type === 'added') {
+                            // If a document is added with status 'verified' (should not happen, but just in case)
+                            if (data.status === 'verified' && !data.rewardProcessed) {
+                                addReferralReward(userId, data.rewardAmount || 50, doc.id);
+                            }
+                        }
+                    });
                     
                     // If on referral list page, update it too
                     if (document.getElementById('my-referrals-view').classList.contains('active')) {
-                        // Get current filter from button active state or default to 'all'
                         const activeFilter = document.querySelector('#my-referrals-view .master-btn-primary')?.textContent.toLowerCase() || 'all';
                         loadReferralList(activeFilter);
                     }
@@ -4831,6 +4820,41 @@
                         showToast('Missing Firestore index. Please create index for referral_requests (referrerId, createdAt).', 'error');
                     }
                 });
+        }
+
+        // ✅ NEW: Add referral reward to referrer's wallet (transaction)
+        async function addReferralReward(referrerId, amount, requestId) {
+            try {
+                await db.runTransaction(async (transaction) => {
+                    const referrerRef = db.collection('users').doc(referrerId);
+                    const requestRef = db.collection('referral_requests').doc(requestId);
+                    
+                    const referrerDoc = await transaction.get(referrerRef);
+                    const requestDoc = await transaction.get(requestRef);
+                    
+                    if (!referrerDoc.exists || !requestDoc.exists) return;
+                    
+                    // Double-check status and rewardProcessed inside transaction
+                    const requestData = requestDoc.data();
+                    if (requestData.status !== 'verified' || requestData.rewardProcessed) return;
+                    
+                    // Update referrer's wallet
+                    transaction.update(referrerRef, {
+                        referralIncome: firebase.firestore.FieldValue.increment(amount),
+                        totalIncome: firebase.firestore.FieldValue.increment(amount),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    // Mark reward as processed
+                    transaction.update(requestRef, {
+                        rewardProcessed: true,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+                console.log(`✅ Referral reward ৳${amount} added to user ${referrerId}`);
+            } catch (error) {
+                console.error('Error adding referral reward:', error);
+            }
         }
 
         // ✅ FIXED: 4. UPDATE REFERRAL SUMMARY – LIVE COUNTS
@@ -4981,7 +5005,7 @@
 
         // --- REMAINING FUNCTIONS (REQUIRED FOR APP FUNCTIONALITY) ---
 
-        // LOAD SALARY PACKAGES
+        // 🔴 LOAD SALARY PACKAGES ONLY – History functions removed
         function loadSalaryPackages(snapshot) {
             const packagesContainer = document.getElementById('salary-packages-container');
             if (!packagesContainer) return;
@@ -5153,7 +5177,7 @@
             document.getElementById('calc-receive').textContent = `৳${pkg.receiveAmount}`;
         }
 
-        // ✅ MODIFIED: SUBMIT WITHDRAW – DEDUCT FROM CORRECT WALLET
+        // ✅ MODIFIED: SUBMIT WITHDRAW – NO TOTALWITHDRAW INCREMENT
         async function submitWithdraw() {
             const paymentMethodSelect = document.getElementById('withdraw-payment-method');
             const paymentMethod = paymentMethodSelect.value;
@@ -5231,7 +5255,7 @@
                     // Dynamically update the correct wallet field
                     const updateData = {};
                     updateData[walletType] = firebase.firestore.FieldValue.increment(-selectedWithdrawPackage.withdrawAmount);
-                    updateData.totalWithdraw = firebase.firestore.FieldValue.increment(selectedWithdrawPackage.withdrawAmount);
+                    // 🔴 DO NOT INCREMENT totalWithdraw HERE – only on approval
                     updateData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
                     
                     transaction.update(userDocRef, updateData);
@@ -5282,6 +5306,177 @@
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
+        }
+
+        // ✅ NEW: SETUP WITHDRAW REQUESTS LISTENER – Handles status changes & table
+        function setupWithdrawRequestsListener(userId) {
+            if (withdrawRequestsListener) {
+                withdrawRequestsListener();
+            }
+
+            withdrawRequestsListener = db.collection('withdraw_requests')
+                .where('uid', '==', userId)
+                .orderBy('createdAt', 'desc')
+                .onSnapshot((snapshot) => {
+                    // Process status changes for approved/rejected
+                    snapshot.docChanges().forEach(async (change) => {
+                        if (change.type === 'modified') {
+                            const request = change.doc.data();
+                            const oldRequest = change.doc.metadata.hasPendingWrites ? null : null; // can't get old data easily
+                            // We'll rely on a flag 'totalWithdrawAdded' to avoid double increments
+                            if (request.status === 'approved' && !request.totalWithdrawAdded) {
+                                await handleWithdrawApproved(userId, request.withdrawAmount, change.doc.id);
+                            } else if (request.status === 'rejected' && !request.refundProcessed) {
+                                await handleWithdrawRejected(userId, request.walletType, request.withdrawAmount, change.doc.id);
+                            }
+                        }
+                    });
+
+                    // Update the withdraw history table
+                    updateWithdrawHistoryTable(snapshot);
+                }, (error) => {
+                    console.error('Error in withdraw requests listener:', error);
+                });
+        }
+
+        // ✅ NEW: Handle withdraw approval – add to totalWithdraw
+        async function handleWithdrawApproved(userId, amount, requestId) {
+            try {
+                await db.runTransaction(async (transaction) => {
+                    const userRef = db.collection('users').doc(userId);
+                    const requestRef = db.collection('withdraw_requests').doc(requestId);
+                    
+                    const userDoc = await transaction.get(userRef);
+                    const requestDoc = await transaction.get(requestRef);
+                    
+                    if (!userDoc.exists || !requestDoc.exists) return;
+                    
+                    const requestData = requestDoc.data();
+                    if (requestData.status !== 'approved' || requestData.totalWithdrawAdded) return;
+                    
+                    transaction.update(userRef, {
+                        totalWithdraw: firebase.firestore.FieldValue.increment(amount),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    transaction.update(requestRef, {
+                        totalWithdrawAdded: true,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+                console.log(`✅ Withdraw approved: ৳${amount} added to totalWithdraw`);
+            } catch (error) {
+                console.error('Error handling withdraw approval:', error);
+            }
+        }
+
+        // ✅ NEW: Handle withdraw rejection – refund amount to wallet
+        async function handleWithdrawRejected(userId, walletType, amount, requestId) {
+            try {
+                await db.runTransaction(async (transaction) => {
+                    const userRef = db.collection('users').doc(userId);
+                    const requestRef = db.collection('withdraw_requests').doc(requestId);
+                    
+                    const userDoc = await transaction.get(userRef);
+                    const requestDoc = await transaction.get(requestRef);
+                    
+                    if (!userDoc.exists || !requestDoc.exists) return;
+                    
+                    const requestData = requestDoc.data();
+                    if (requestData.status !== 'rejected' || requestData.refundProcessed) return;
+                    
+                    const updateData = {};
+                    updateData[walletType] = firebase.firestore.FieldValue.increment(amount);
+                    updateData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+                    
+                    transaction.update(userRef, updateData);
+                    
+                    transaction.update(requestRef, {
+                        refundProcessed: true,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+                console.log(`✅ Withdraw rejected: ৳${amount} refunded to ${walletType}`);
+            } catch (error) {
+                console.error('Error handling withdraw rejection:', error);
+            }
+        }
+
+        // ✅ NEW: Update withdraw history table (moved from old updateWithdrawHistory)
+        async function updateWithdrawHistoryTable(snapshot) {
+            const tbody = document.getElementById('withdraw-processing-tbody');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+
+            if (snapshot.empty) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-light);">
+                            <i class="fa-solid fa-inbox" style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;"></i>
+                            <p>No withdraw history yet</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let sl = 1;
+            
+            const rows = [];
+            
+            for (const doc of snapshot.docs) {
+                const data = doc.data();
+                const date = data.createdAt ? data.createdAt.toDate() : new Date();
+                const formattedDate = date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                let paymentMethodName = 'Unknown';
+                
+                try {
+                    if (data.paymentMethod) {
+                        const cachedMethod = paymentMethods.find(method => method.id === data.paymentMethod);
+                        if (cachedMethod) {
+                            paymentMethodName = cachedMethod.methodName || cachedMethod.name || data.paymentMethod;
+                        } else {
+                            const methodDoc = await db.collection('payment_methods').doc(data.paymentMethod).get();
+                            if (methodDoc.exists) {
+                                const methodData = methodDoc.data();
+                                paymentMethodName = methodData.methodName || methodData.name || data.paymentMethod;
+                            } else {
+                                paymentMethodName = data.paymentMethod;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching payment method name:', error);
+                    paymentMethodName = data.paymentMethod || 'N/A';
+                }
+                
+                const statusClass = getStatusClass(data.status);
+                const statusText = data.status || 'pending';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="padding: 12px;">${sl}</td>
+                    <td style="padding: 12px;">৳${data.withdrawAmount || 0}</td>
+                    <td style="padding: 12px;"><strong>${paymentMethodName}</strong></td>
+                    <td style="padding: 12px;">${data.receiverNumber || ''}</td>
+                    <td style="padding: 12px;">
+                        <span class="${statusClass}">${statusText}</span>
+                    </td>
+                    <td style="padding: 12px;">${formattedDate}</td>
+                `;
+                rows.push(row);
+                sl++;
+            }
+            
+            rows.forEach(row => tbody.appendChild(row));
         }
 
         // SUBMIT VERIFICATION
@@ -5635,10 +5830,7 @@
                     }
                     
                     if (pageId === 'withdraw-processing') {
-                        const user = auth.currentUser;
-                        if (user) {
-                            setupWithdrawHistoryListener();
-                        }
+                        // Already listening via setupWithdrawRequestsListener
                     }
 
                     // ===== FREE JOB PAGE LOADERS =====
@@ -6011,6 +6203,82 @@
             }
         }
 
+        // ✅ NEW: Gmail Wallet Listener – detects approved status and adds to gmailWallet
+        function setupGmailWalletListener(userId) {
+            if (gmailWalletListener) {
+                gmailWalletListener();
+            }
+
+            gmailWalletListener = db.collection('gmail_sell_requests')
+                .where('uid', '==', userId)
+                .onSnapshot((snapshot) => {
+                    // Update summary totals
+                    let totalApproved = 0;
+                    let totalPending = 0;
+                    
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (data.status === 'approved') {
+                            totalApproved += data.amount || 0;
+                        } else if (data.status === 'processing') {
+                            totalPending += data.amount || 0;
+                        }
+                    });
+                    
+                    document.getElementById('gmail-total-approved').textContent = `৳${totalApproved}`;
+                    document.getElementById('gmail-total-pending').textContent = `৳${totalPending}`;
+                    
+                    // Process status changes for wallet addition
+                    snapshot.docChanges().forEach(change => {
+                        const doc = change.doc;
+                        const data = doc.data();
+                        
+                        if (change.type === 'modified') {
+                            if (data.status === 'approved' && !data.rewardAdded) {
+                                addGmailReward(userId, data.amount || 0, doc.id);
+                            }
+                        } else if (change.type === 'added') {
+                            if (data.status === 'approved' && !data.rewardAdded) {
+                                addGmailReward(userId, data.amount || 0, doc.id);
+                            }
+                        }
+                    });
+                }, (error) => {
+                    console.error('Error in Gmail wallet listener:', error);
+                });
+        }
+
+        // ✅ NEW: Add Gmail reward to gmailWallet
+        async function addGmailReward(userId, amount, requestId) {
+            try {
+                await db.runTransaction(async (transaction) => {
+                    const userRef = db.collection('users').doc(userId);
+                    const requestRef = db.collection('gmail_sell_requests').doc(requestId);
+                    
+                    const userDoc = await transaction.get(userRef);
+                    const requestDoc = await transaction.get(requestRef);
+                    
+                    if (!userDoc.exists || !requestDoc.exists) return;
+                    
+                    const requestData = requestDoc.data();
+                    if (requestData.status !== 'approved' || requestData.rewardAdded) return;
+                    
+                    transaction.update(userRef, {
+                        gmailWallet: firebase.firestore.FieldValue.increment(amount),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    transaction.update(requestRef, {
+                        rewardAdded: true,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+                console.log(`✅ Gmail reward ৳${amount} added to gmailWallet`);
+            } catch (error) {
+                console.error('Error adding Gmail reward:', error);
+            }
+        }
+
         function updateGmailSettingsUI(settings) {
             if (!settings) return;
             
@@ -6222,7 +6490,7 @@
             copyText(password);
         }
 
-        // SALARY LISTENERS
+        // 🔴 SALARY LISTENERS – ONLY SALARY PACKAGES (history removed)
         function setupSalaryListeners() {
             const user = auth.currentUser;
             if (!user) return;
@@ -6245,138 +6513,7 @@
                         `;
                     }
                 });
-
-            if (salaryApplicationsListener) {
-                salaryApplicationsListener();
-            }
-            
-            salaryApplicationsListener = db.collection('salary_applications')
-                .where('uid', '==', user.uid)
-                .orderBy('applyDate', 'desc')
-                .onSnapshot(loadSalaryApplications, (error) => {
-                    console.error('Error loading salary applications:', error);
-                    const tbody = document.getElementById('salary-applications-tbody');
-                    if (tbody) {
-                        tbody.innerHTML = `
-                            <tr>
-                                <td colspan="8" style="text-align: center; padding: 40px; color: var(--danger);">
-                                    <i class="fa-solid fa-exclamation-circle" style="font-size: 48px; margin-bottom: 20px;"></i>
-                                    <p>Error loading salary applications. Please try again later.</p>
-                                </td>
-                            </tr>
-                        `;
-                    }
-                });
-
-            if (salaryPaymentsListener) {
-                salaryPaymentsListener();
-            }
-            
-            salaryPaymentsListener = db.collection('salary_payments')
-                .where('uid', '==', user.uid)
-                .orderBy('receiveDate', 'desc')
-                .onSnapshot(loadSalaryPayments, (error) => {
-                    console.error('Error loading salary payments:', error);
-                    const tbody = document.getElementById('salary-payments-tbody');
-                    if (tbody) {
-                        tbody.innerHTML = `
-                            <tr>
-                                <td colspan="5" style="text-align: center; padding: 40px; color: var(--danger);">
-                                    <i class="fa-solid fa-exclamation-circle" style="font-size: 48px; margin-bottom: 20px;"></i>
-                                    <p>Error loading salary payments. Please try again later.</p>
-                                </td>
-                            </tr>
-                        `;
-                    }
-                });
-        }
-
-        function loadSalaryApplications(snapshot) {
-            const tbody = document.getElementById('salary-applications-tbody');
-            if (!tbody) return;
-
-            tbody.innerHTML = '';
-
-            if (snapshot.empty) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-light);">
-                            <i class="fa-solid fa-inbox" style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;"></i>
-                            <p>No salary applications yet</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            let index = 1;
-            let rowsHTML = '';
-            snapshot.forEach(doc => {
-                const app = doc.data();
-                const applyDate = app.applyDate ? app.applyDate.toDate() : new Date();
-                const approvedDate = app.approvedDate ? app.approvedDate.toDate() : null;
-
-                rowsHTML += `
-                    <tr>
-                        <td style="padding: 12px;">${index++}</td>
-                        <td style="padding: 12px;">${app.packageName}</td>
-                        <td style="padding: 12px;">${app.requiredVerified}</td>
-                        <td style="padding: 12px;">${app.userVerifiedAtApply || 0}</td>
-                        <td style="padding: 12px;">৳${app.salaryAmount || 0}</td>
-                        <td style="padding: 12px;">${formatDate(applyDate)}</td>
-                        <td style="padding: 12px;">${approvedDate ? formatDate(approvedDate) : '—'}</td>
-                        <td style="padding: 12px;">
-                            <span class="${getStatusClass(app.status)}" style="padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                ${app.status}
-                            </span>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            tbody.innerHTML = rowsHTML;
-        }
-
-        function loadSalaryPayments(snapshot) {
-            const tbody = document.getElementById('salary-payments-tbody');
-            if (!tbody) return;
-
-            tbody.innerHTML = '';
-
-            if (snapshot.empty) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-light);">
-                            <i class="fa-solid fa-money-bill-wave" style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;"></i>
-                            <p>No salary received yet</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            let index = 1;
-            let rowsHTML = '';
-            snapshot.forEach(doc => {
-                const payment = doc.data();
-                const receiveDate = payment.receiveDate ? payment.receiveDate.toDate() : new Date();
-
-                rowsHTML += `
-                    <tr>
-                        <td style="padding: 12px;">${index++}</td>
-                        <td style="padding: 12px;">${payment.packageName}</td>
-                        <td style="padding: 12px;">৳${payment.salaryAmount || 0}</td>
-                        <td style="padding: 12px;">${formatDate(receiveDate)}</td>
-                        <td style="padding: 12px;">
-                            <span class="badge-approved" style="padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                ${payment.status || 'paid'}
-                            </span>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            tbody.innerHTML = rowsHTML;
+            // 🔴 salary_applications and salary_payments listeners removed
         }
 
         // SUPPORT CONTACTS LISTENER
@@ -6492,113 +6629,6 @@
             supportContainer.innerHTML = supportCardsHTML;
         }
 
-        // WITHDRAW HISTORY LISTENER
-        function setupWithdrawHistoryListener() {
-            const user = auth.currentUser;
-            if (!user) return;
-
-            if (withdrawHistoryListener) {
-                withdrawHistoryListener();
-            }
-            
-            withdrawHistoryListener = db.collection('withdraw_requests')
-                .where('uid', '==', user.uid)
-                .orderBy('createdAt', 'desc')
-                .onSnapshot(async (snapshot) => {
-                    await updateWithdrawHistory(snapshot);
-                }, (error) => {
-                    console.error('Error loading withdraw history:', error);
-                    const tbody = document.getElementById('withdraw-processing-tbody');
-                    if (tbody) {
-                        tbody.innerHTML = `
-                            <tr>
-                                <td colspan="6" style="text-align: center; padding: 40px; color: var(--danger);">
-                                    <i class="fa-solid fa-exclamation-circle" style="font-size: 48px; margin-bottom: 20px;"></i>
-                                    <p>Error loading withdraw history</p>
-                                </td>
-                            </tr>
-                        `;
-                    }
-                });
-        }
-
-        // UPDATE WITHDRAW HISTORY
-        async function updateWithdrawHistory(snapshot) {
-            const tbody = document.getElementById('withdraw-processing-tbody');
-            if (!tbody) return;
-
-            tbody.innerHTML = '';
-
-            if (snapshot.empty) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-light);">
-                            <i class="fa-solid fa-inbox" style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;"></i>
-                            <p>No withdraw history yet</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            let sl = 1;
-            
-            const rows = [];
-            
-            for (const doc of snapshot.docs) {
-                const data = doc.data();
-                const date = data.createdAt ? data.createdAt.toDate() : new Date();
-                const formattedDate = date.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
-                let paymentMethodName = 'Unknown';
-                
-                try {
-                    if (data.paymentMethod) {
-                        const cachedMethod = paymentMethods.find(method => method.id === data.paymentMethod);
-                        if (cachedMethod) {
-                            paymentMethodName = cachedMethod.methodName || cachedMethod.name || data.paymentMethod;
-                        } else {
-                            const methodDoc = await db.collection('payment_methods').doc(data.paymentMethod).get();
-                            if (methodDoc.exists) {
-                                const methodData = methodDoc.data();
-                                paymentMethodName = methodData.methodName || methodData.name || data.paymentMethod;
-                            } else {
-                                paymentMethodName = data.paymentMethod;
-                            }
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error fetching payment method name:', error);
-                    paymentMethodName = data.paymentMethod || 'N/A';
-                }
-                
-                const statusClass = getStatusClass(data.status);
-                const statusText = data.status || 'pending';
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td style="padding: 12px;">${sl}</td>
-                    <td style="padding: 12px;">৳${data.withdrawAmount || 0}</td>
-                    <td style="padding: 12px;"><strong>${paymentMethodName}</strong></td>
-                    <td style="padding: 12px;">${data.receiverNumber || ''}</td>
-                    <td style="padding: 12px;">
-                        <span class="${statusClass}">${statusText}</span>
-                    </td>
-                    <td style="padding: 12px;">${formattedDate}</td>
-                `;
-                rows.push(row);
-                sl++;
-            }
-            
-            rows.forEach(row => tbody.appendChild(row));
-        }
-
         // ✅ FIXED: LOGOUT FUNCTION WITH CLEANUP
         async function logout() {
             try {
@@ -6627,24 +6657,16 @@
                     salaryPackagesListener = null;
                 }
                 
-                if (salaryApplicationsListener) {
-                    salaryApplicationsListener();
-                    salaryApplicationsListener = null;
-                }
-                
-                if (salaryPaymentsListener) {
-                    salaryPaymentsListener();
-                    salaryPaymentsListener = null;
-                }
+                // 🔴 salaryApplicationsListener and salaryPaymentsListener removed
                 
                 if (withdrawPackagesListener) {
                     withdrawPackagesListener();
                     withdrawPackagesListener = null;
                 }
                 
-                if (withdrawHistoryListener) {
-                    withdrawHistoryListener();
-                    withdrawHistoryListener = null;
+                if (withdrawRequestsListener) {
+                    withdrawRequestsListener();
+                    withdrawRequestsListener = null;
                 }
                 
                 if (gmailProcessingListener) {
@@ -6660,6 +6682,11 @@
                 if (gmailSettingsListener) {
                     gmailSettingsListener();
                     gmailSettingsListener = null;
+                }
+                
+                if (gmailWalletListener) {
+                    gmailWalletListener();
+                    gmailWalletListener = null;
                 }
                 
                 if (supportContactsListener) {
@@ -6752,7 +6779,23 @@
 
         // ========== FREE JOB SYSTEM FUNCTIONS ==========
 
-        // 1. Load Projects
+        // ✅ DAILY RESET FUNCTION
+        async function resetDailyLimitIfNeeded(projectId) {
+            const projectRef = db.collection('projects').doc(projectId);
+            const projectDoc = await projectRef.get();
+            if (!projectDoc.exists) return;
+            const project = projectDoc.data();
+            const todayDate = new Date().toDateString();
+            if (project.lastUsedDate !== todayDate) {
+                await projectRef.update({
+                    todayUsed: 0,
+                    lastUsedDate: todayDate
+                });
+                console.log(`✅ Daily limit reset for project ${projectId}`);
+            }
+        }
+
+        // 1. Load Projects – with daily limit check & lock
         function loadFreeJobProjects() {
             const container = document.getElementById('free-job-projects-container');
             container.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: var(--text-light);"><i class="fa-solid fa-spinner fa-spin" style="font-size: 48px;"></i><p>Loading projects...</p></div>';
@@ -6762,7 +6805,10 @@
             freeJobProjectsListener = db.collection('projects')
                 .where('status', '==', 'active')
                 .orderBy('order', 'asc')
-                .onSnapshot((snapshot) => {
+                .onSnapshot(async (snapshot) => {
+                    // Reset daily limits if needed
+                    const resetPromises = snapshot.docs.map(doc => resetDailyLimitIfNeeded(doc.id));
+                    await Promise.all(resetPromises);
                     renderFreeJobProjects(snapshot);
                 }, (error) => {
                     console.error('Error loading projects:', error);
@@ -6770,6 +6816,7 @@
                 });
         }
 
+        // ✅ Updated render function with lock, remaining count
         function renderFreeJobProjects(snapshot) {
             const container = document.getElementById('free-job-projects-container');
             if (snapshot.empty) {
@@ -6781,31 +6828,48 @@
             snapshot.forEach(doc => {
                 const project = doc.data();
                 const projectId = doc.id;
-                
-                // ✅ Daily limit check
-                const usedWorkPerDay = project.usedWorkPerDay || 999; // default unlimited
-                const todayUsed = project.todayUsed || 0;
-                const remaining = usedWorkPerDay - todayUsed;
+
+                const usedWorkPerDay = Number(project.usedWorkPerDay);
+                const todayUsed = Number(project.todayUsed || 0);
+
+                // If usedWorkPerDay missing, skip (treat as unlimited)
+                if (!usedWorkPerDay) {
+                    console.error('usedWorkPerDay missing for project:', projectId);
+                    return;
+                }
+
+                const remaining = Math.max(0, usedWorkPerDay - todayUsed);
                 const isLocked = todayUsed >= usedWorkPerDay;
-                
+
                 let statusClass = '';
                 if (isLocked) {
                     statusClass = 'free-job-project-locked';
                 } else if (project.status === 'coming') {
                     statusClass = 'free-job-project-coming';
                 }
-                
+
                 html += `
-                    <div class="free-job-project-card ${statusClass}" onclick="selectProject('${projectId}', '${project.title}')">
-                        <h3 style="font-size: 18px; font-weight: 700; color: var(--dark); margin-bottom: 8px;">${project.title}</h3>
-                        <p style="font-size: 13px; color: var(--text-light); margin-bottom: 5px;">${project.description || ''}</p>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                            <span style="font-size: 12px; color: ${isLocked ? 'var(--danger)' : 'var(--success)'}; font-weight: 600;">
-                                <i class="fa-solid fa-clock"></i> Remaining Today: ${remaining}/${usedWorkPerDay}
+                    <div class="free-job-project-card ${statusClass}"
+                        ${isLocked ? '' : `onclick="selectProject('${projectId}', '${project.title}')"`}>
+
+                        <h3 style="font-size:18px; font-weight:700; margin-bottom:6px;">
+                            ${project.title}
+                        </h3>
+
+                        <p style="font-size:13px; color:gray;">
+                            ${project.description || ''}
+                        </p>
+
+                        <div style="display:flex; justify-content:space-between; margin-top:10px;">
+
+                            <span style="font-size:12px; font-weight:600; color:${isLocked ? 'red' : 'green'};">
+                                ⏳ Remaining Today: ${remaining}/${usedWorkPerDay}
                             </span>
-                            <span style="font-size: 12px; color: var(--text-light);">
-                                ${isLocked ? '❌ Daily Limit Finished' : project.status === 'active' ? '✅ Active' : '⏳ Coming Soon'}
+
+                            <span style="font-size:12px; color:gray;">
+                                ${isLocked ? '❌ Daily Limit Finished' : '✅ Active'}
                             </span>
+
                         </div>
                     </div>
                 `;
@@ -6813,30 +6877,31 @@
             container.innerHTML = html;
         }
 
-        // Select project -> go to cards page (with limit check)
+        // ✅ Updated selectProject – checks limit before navigating
         async function selectProject(projectId, projectTitle) {
-            // Store title
-            selectedProjectTitle = projectTitle;
-            
-            // ✅ Check daily limit before navigating
             try {
                 const projectDoc = await db.collection('projects').doc(projectId).get();
-                if (projectDoc.exists) {
-                    const project = projectDoc.data();
-                    const usedWorkPerDay = project.usedWorkPerDay || 999;
-                    const todayUsed = project.todayUsed || 0;
-                    if (todayUsed >= usedWorkPerDay) {
-                        showToast('❌ Daily limit finished! Come back tomorrow.', 'warning');
-                        return;
-                    }
+                if (!projectDoc.exists) {
+                    showToast('❌ Project not found!', 'error');
+                    return;
                 }
+
+                const project = projectDoc.data();
+                const usedWorkPerDay = Number(project.usedWorkPerDay);
+                const todayUsed = Number(project.todayUsed || 0);
+
+                if (todayUsed >= usedWorkPerDay) {
+                    showToast('❌ Daily limit finished! Come back tomorrow.', 'warning');
+                    return;
+                }
+
+                selectedProjectId = projectId;
+                selectedProjectTitle = projectTitle;
+                navigateTo('free-job-cards');
             } catch (error) {
-                console.error('Error checking project limit:', error);
-                // Continue anyway? Better to allow but log error
+                console.error('Error selecting project:', error);
+                showToast('❌ Something went wrong!', 'error');
             }
-            
-            selectedProjectId = projectId;
-            navigateTo('free-job-cards');
         }
 
         // 2. Load Cards
@@ -7151,8 +7216,8 @@
                 const projectDoc = await db.collection('projects').doc(selectedProjectId).get();
                 if (projectDoc.exists) {
                     const project = projectDoc.data();
-                    const usedWorkPerDay = project.usedWorkPerDay || 999;
-                    const todayUsed = project.todayUsed || 0;
+                    const usedWorkPerDay = Number(project.usedWorkPerDay);
+                    const todayUsed = Number(project.todayUsed || 0);
                     if (todayUsed >= usedWorkPerDay) {
                         showToast('❌ Daily limit finished! Cannot submit work.', 'warning');
                         return;
@@ -7267,6 +7332,22 @@
                     // Update summary and list with current filter
                     updateSubmissionsSummary(allSubmissions);
                     filterSubmissions(currentSubmissionFilter);
+                    
+                    // ✅ Detect approved status and add reward to freeJobBalance
+                    snapshot.docChanges().forEach(change => {
+                        const doc = change.doc;
+                        const data = doc.data();
+                        
+                        if (change.type === 'modified') {
+                            if (data.status === 'approved' && !data.rewardAdded) {
+                                addFreeJobReward(userId, data.reward || 0, doc.id);
+                            }
+                        } else if (change.type === 'added') {
+                            if (data.status === 'approved' && !data.rewardAdded) {
+                                addFreeJobReward(userId, data.reward || 0, doc.id);
+                            }
+                        }
+                    });
                 }, (error) => {
                     console.error('Error loading job submissions:', error);
                     const list = document.getElementById('job-submissions-list');
@@ -7277,6 +7358,37 @@
                         </div>`;
                     }
                 });
+        }
+
+        // ✅ NEW: Add Free Job reward to freeJobBalance
+        async function addFreeJobReward(userId, amount, submissionId) {
+            try {
+                await db.runTransaction(async (transaction) => {
+                    const userRef = db.collection('users').doc(userId);
+                    const submissionRef = db.collection('job_submissions').doc(submissionId);
+                    
+                    const userDoc = await transaction.get(userRef);
+                    const submissionDoc = await transaction.get(submissionRef);
+                    
+                    if (!userDoc.exists || !submissionDoc.exists) return;
+                    
+                    const submissionData = submissionDoc.data();
+                    if (submissionData.status !== 'approved' || submissionData.rewardAdded) return;
+                    
+                    transaction.update(userRef, {
+                        freeJobBalance: firebase.firestore.FieldValue.increment(amount),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    transaction.update(submissionRef, {
+                        rewardAdded: true,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+                console.log(`✅ Free Job reward ৳${amount} added to freeJobBalance`);
+            } catch (error) {
+                console.error('Error adding free job reward:', error);
+            }
         }
 
         function updateSubmissionsSummary(submissions) {
@@ -7443,6 +7555,9 @@
             console.log('✅ Media slider with video support added');
             console.log('✅ Verify Now button hidden for verified users');
             console.log('✅ Withdraw Page – 100% Firestore driven, wallet-wise packages');
+            console.log('✅ PROBLEM #9 FIXED: Salary Application/Receive History completely removed');
+            console.log('✅ PROBLEM #10 FIXED: Withdraw status logic corrected (totalWithdraw only on approved, refund on reject)');
+            console.log('✅ PROBLEM #12 FIXED: Approved earnings sync into wallets (Referral, Free Job, Gmail)');
 
             // Add event listener for wallet dropdown
             const walletSelect = document.getElementById('withdraw-wallet-select');
