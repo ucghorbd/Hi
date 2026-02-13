@@ -5065,54 +5065,6 @@
             packagesContainer.innerHTML = packagesHTML;
         }
 
-        // APPLY SALARY FUNCTION
-        async function applySalary(packageId, packageName, requiredVerified, salaryAmount) {
-            const user = auth.currentUser;
-            if (!user || !userDocRef || !userData) {
-                showToast('Please login again', 'error');
-                return;
-            }
-
-            const userVerifiedReferrals = parseInt(document.getElementById('verified-members-count').textContent) || 0;
-            if (userVerifiedReferrals < requiredVerified) {
-                showToast(`You need ${requiredVerified} verified referrals for this salary package.`, 'warning');
-                return;
-            }
-
-            try {
-                const existingAppQuery = await db.collection('salary_applications')
-                    .where('uid', '==', user.uid)
-                    .where('packageId', '==', packageId)
-                    .where('status', 'in', ['processing', 'approved'])
-                    .get();
-
-                if (!existingAppQuery.empty) {
-                    showToast('You have already applied for this salary package.', 'warning');
-                    return;
-                }
-
-                const salaryData = {
-                    uid: user.uid,
-                    packageId: packageId,
-                    packageName: packageName,
-                    requiredVerified: requiredVerified,
-                    userVerifiedAtApply: userVerifiedReferrals,
-                    salaryAmount: salaryAmount,
-                    applyDate: firebase.firestore.FieldValue.serverTimestamp(),
-                    status: 'processing',
-                    isActive: true
-                };
-
-                await db.collection('salary_applications').add(salaryData);
-
-                showToast(`Applied for ${packageName} Salary (৳${salaryAmount}/month) successfully!`);
-
-            } catch (error) {
-                console.error('Error applying for salary:', error);
-                showToast('Failed to apply for salary', 'error');
-            }
-        }
-
         // UPDATE VERIFICATION STATUS
         function updateVerificationStatus(status) {
             const statusDisplay = document.getElementById('account-status-display');
@@ -6178,7 +6130,7 @@
             }
         }
 
-        // GMAIL FUNCTIONS
+        // ========== GMAIL FUNCTIONS ==========
         function setupGmailListeners() {
             const user = auth.currentUser;
             if (!user) return;
@@ -6197,6 +6149,9 @@
                 });
 
             setupGmailStatusSummary(user.uid);
+            
+            // ✅ [FIX] নিচের লাইনটি যোগ করা হয়েছে – Gmail Wallet রিয়েল-টাইম আপডেটের জন্য
+            setupGmailWalletListener(user.uid);
             
             if (document.getElementById('gmail-processing-view')?.classList.contains('active')) {
                 setupGmailHistoryListener(user.uid);
@@ -6488,32 +6443,6 @@
                 return;
             }
             copyText(password);
-        }
-
-        // 🔴 SALARY LISTENERS – ONLY SALARY PACKAGES (history removed)
-        function setupSalaryListeners() {
-            const user = auth.currentUser;
-            if (!user) return;
-
-            if (salaryPackagesListener) {
-                salaryPackagesListener();
-            }
-            
-            salaryPackagesListener = db.collection('salary_packages')
-                .where('status', '==', 'active')
-                .onSnapshot(loadSalaryPackages, (error) => {
-                    console.error('Error loading salary packages:', error);
-                    const packagesContainer = document.getElementById('salary-packages-container');
-                    if (packagesContainer) {
-                        packagesContainer.innerHTML = `
-                            <div style="text-align: center; padding: 40px 20px; color: var(--danger);">
-                                <i class="fa-solid fa-exclamation-circle" style="font-size: 48px; margin-bottom: 20px;"></i>
-                                <p>Error loading salary packages. Please try again later.</p>
-                            </div>
-                        `;
-                    }
-                });
-            // 🔴 salary_applications and salary_payments listeners removed
         }
 
         // SUPPORT CONTACTS LISTENER
