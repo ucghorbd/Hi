@@ -4597,7 +4597,8 @@
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     referralCodeUsed: referralCode || null,
                     referredBy: null,
-                    referredByCode: null
+                    referredByCode: null,
+                    claimedSalaryPackages: []        // ✅ NEW: track claimed salary packages
                 };
                 
                 // 4. users কালেকশনে ইউজার ডকুমেন্ট সেভ
@@ -5029,6 +5030,31 @@
 
                 const userVerifiedReferrals = parseInt(document.getElementById('verified-members-count').textContent) || 0;
                 const isEligible = userVerifiedReferrals >= pkg.requiredVerified;
+                const isClaimed = userData && userData.claimedSalaryPackages && userData.claimedSalaryPackages.includes(pkgId);
+
+                let buttonText = 'Locked';
+                let buttonIcon = 'lock';
+                let disabled = true;
+                let buttonClass = 'master-btn-dark';
+                let onClick = '';
+
+                if (isClaimed) {
+                    buttonText = 'Already Claimed';
+                    buttonIcon = 'check-circle';
+                    disabled = true;
+                    buttonClass = 'master-btn-secondary';
+                } else if (isEligible) {
+                    buttonText = 'Claim Salary';
+                    buttonIcon = 'gift';
+                    disabled = false;
+                    buttonClass = 'master-btn-green';
+                    onClick = `claimSalary('${pkgId}', ${pkg.salaryAmount})`;
+                } else {
+                    buttonText = 'Locked';
+                    buttonIcon = 'lock';
+                    disabled = true;
+                    buttonClass = 'master-btn-dark';
+                }
 
                 packagesHTML += `
                     <div class="salary-package-card ${isEligible ? '' : 'locked'}">
@@ -5050,12 +5076,12 @@
                                     ${userVerifiedReferrals} / ${pkg.requiredVerified}
                                 </span>
                             </div>
-                            <button class="master-btn master-btn-green master-btn-full" 
-                                    onclick="applySalary('${pkgId}', '${pkg.name}', ${pkg.requiredVerified}, ${pkg.salaryAmount})" 
-                                    ${isEligible ? '' : 'disabled'}
+                            <button class="master-btn ${buttonClass} master-btn-full" 
+                                    onclick="${onClick}" 
+                                    ${disabled ? 'disabled' : ''}
                                     style="margin-top: 15px;">
-                                <i class="fa-solid ${isEligible ? 'paper-plane' : 'lock'}"></i> 
-                                ${isEligible ? 'Apply for Salary' : 'Locked'}
+                                <i class="fa-solid fa-${buttonIcon}"></i> 
+                                ${buttonText}
                             </button>
                         </div>
                     </div>
@@ -5065,51 +5091,63 @@
             packagesContainer.innerHTML = packagesHTML;
         }
 
-        // APPLY SALARY FUNCTION
-        async function applySalary(packageId, packageName, requiredVerified, salaryAmount) {
+        // ✅ NEW: Claim Salary Function (replaces old applySalary)
+        async function claimSalary(packageId, salaryAmount) {
             const user = auth.currentUser;
             if (!user || !userDocRef || !userData) {
                 showToast('Please login again', 'error');
                 return;
             }
 
-            const userVerifiedReferrals = parseInt(document.getElementById('verified-members-count').textContent) || 0;
-            if (userVerifiedReferrals < requiredVerified) {
-                showToast(`You need ${requiredVerified} verified referrals for this salary package.`, 'warning');
+            // Quick check if already claimed
+            if (userData.claimedSalaryPackages && userData.claimedSalaryPackages.includes(packageId)) {
+                showToast('You have already claimed this salary package.', 'warning');
                 return;
             }
 
+            // Get verified referrals count from DOM
+            const userVerifiedReferrals = parseInt(document.getElementById('verified-members-count').textContent) || 0;
+            
             try {
-                const existingAppQuery = await db.collection('salary_applications')
-                    .where('uid', '==', user.uid)
-                    .where('packageId', '==', packageId)
-                    .where('status', 'in', ['processing', 'approved'])
-                    .get();
-
-                if (!existingAppQuery.empty) {
-                    showToast('You have already applied for this salary package.', 'warning');
+                // Fetch package to verify requirement
+                const packageDoc = await db.collection('salary_packages').doc(packageId).get();
+                if (!packageDoc.exists) {
+                    showToast('Salary package not found.', 'error');
+                    return;
+                }
+                const pkg = packageDoc.data();
+                if (userVerifiedReferrals < pkg.requiredVerified) {
+                    showToast(`You need ${pkg.requiredVerified} verified referrals to claim this package.`, 'warning');
                     return;
                 }
 
-                const salaryData = {
-                    uid: user.uid,
-                    packageId: packageId,
-                    packageName: packageName,
-                    requiredVerified: requiredVerified,
-                    userVerifiedAtApply: userVerifiedReferrals,
-                    salaryAmount: salaryAmount,
-                    applyDate: firebase.firestore.FieldValue.serverTimestamp(),
-                    status: 'processing',
-                    isActive: true
-                };
+                // Transaction to update user and mark claimed
+                await db.runTransaction(async (transaction) => {
+                    const userDoc = await transaction.get(userDocRef);
+                    if (!userDoc.exists) throw new Error('User not found');
 
-                await db.collection('salary_applications').add(salaryData);
+                    const user = userDoc.data();
+                    // Double-check claimed inside transaction
+                    if (user.claimedSalaryPackages && user.claimedSalaryPackages.includes(packageId)) {
+                        throw new Error('Already claimed');
+                    }
 
-                showToast(`Applied for ${packageName} Salary (৳${salaryAmount}/month) successfully!`);
+                    transaction.update(userDocRef, {
+                        salaryWallet: firebase.firestore.FieldValue.increment(salaryAmount),
+                        totalIncome: firebase.firestore.FieldValue.increment(salaryAmount),
+                        claimedSalaryPackages: firebase.firestore.FieldValue.arrayUnion(packageId),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
 
+                showToast(`Successfully claimed ৳${salaryAmount} salary!`, 'success');
             } catch (error) {
-                console.error('Error applying for salary:', error);
-                showToast('Failed to apply for salary', 'error');
+                console.error('Error claiming salary:', error);
+                if (error.message === 'Already claimed') {
+                    showToast('You have already claimed this salary package.', 'warning');
+                } else {
+                    showToast('Failed to claim salary: ' + error.message, 'error');
+                }
             }
         }
 
@@ -7558,6 +7596,7 @@
             console.log('✅ PROBLEM #9 FIXED: Salary Application/Receive History completely removed');
             console.log('✅ PROBLEM #10 FIXED: Withdraw status logic corrected (totalWithdraw only on approved, refund on reject)');
             console.log('✅ PROBLEM #12 FIXED: Approved earnings sync into wallets (Referral, Free Job, Gmail)');
+            console.log('✅ PROBLEM #3 FIXED: Salary packages unlock & claim system now working (one-time claim, wallet updates)');
 
             // Add event listener for wallet dropdown
             const walletSelect = document.getElementById('withdraw-wallet-select');
