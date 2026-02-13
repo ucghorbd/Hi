@@ -5550,39 +5550,65 @@
             }
         }
 
-        // --- AUTH STATE LISTENER ---
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                try {
-                    const userDoc = await db.collection('users').doc(user.uid).get();
-                    
-                    if (userDoc.exists) {
-                        setupUserListener(user.uid);
-                        setupAppConfigListener();
-                        setupReferralSettingsListener();
-                        setupPaymentMethodsListener();
-                        setupVerificationMethodsListener();
-                        
-                        document.getElementById('auth-container').style.display = 'none';
-                        document.getElementById('app-container').style.display = 'block';
-                        
-                        if (!document.getElementById('dashboard-view').classList.contains('active')) {
-                            navigateTo('dashboard');
-                        }
-                    } else {
-                        await auth.signOut();
-                        showToast('User data not found. Please sign up again.', 'error');
-                        showSignIn();
-                    }
-                } catch (error) {
-                    console.error('Error in auth state listener:', error);
-                    showToast('An error occurred. Please try again.', 'error');
-                    showSignIn();
-                }
-            } else {
-                showWelcome();
+      auth.onAuthStateChanged(async (user) => {
+
+    // ✅ Step 1: Referral Code Detect
+    const urlParams = new URLSearchParams(window.location.search);
+    const referralCode = urlParams.get("ref");
+
+    // ✅ Step 2: If NOT logged in but referral exists → Stay on Signup Page
+    if (!user && referralCode) {
+
+        console.log("Referral Visitor → Signup Page Stay");
+
+        openSignupPage();
+
+        setTimeout(() => {
+            const referralInput = document.getElementById("signup-referral");
+            if (referralInput) {
+                referralInput.value = referralCode.trim();
+                referralInput.readOnly = true;
             }
-        });
+        }, 300);
+
+        return; // 🚫 Stop Here (do not showWelcome)
+    }
+
+    // ✅ Normal Auth Flow
+    if (user) {
+        try {
+            const userDoc = await db.collection("users").doc(user.uid).get();
+
+            if (userDoc.exists) {
+
+                setupUserListener(user.uid);
+                setupAppConfigListener();
+                setupReferralSettingsListener();
+                setupPaymentMethodsListener();
+                setupVerificationMethodsListener();
+
+                document.getElementById("auth-container").style.display = "none";
+                document.getElementById("app-container").style.display = "block";
+
+                navigateTo("dashboard");
+
+            } else {
+                await auth.signOut();
+                showToast("User data not found. Please sign up again.", "error");
+                showSignIn();
+            }
+
+        } catch (error) {
+            console.error("Auth listener error:", error);
+            showToast("An error occurred. Please try again.", "error");
+            showSignIn();
+        }
+
+    } else {
+        // ✅ Only show welcome if no referral
+        showWelcome();
+    }
+});
 
         // --- AUTHENTICATION FUNCTIONS ---
         async function signIn(event) {
