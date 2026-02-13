@@ -3297,14 +3297,27 @@
                 <div class="available-balance-display">
                     <div class="form-label">Available Balance</div>
                     <div class="balance-display-amount">৳<span id="withdraw-available-balance">0.00</span></div>
+                    <div id="selected-wallet-info" style="font-size: 13px; color: var(--text-light); margin-top: 5px;"></div>
                     <div style="font-size: 13px; color: var(--text-light);">This is the same balance shown on your dashboard</div>
+                </div>
+
+                <!-- ========== NEW: WALLET SELECTION ========== -->
+                <div class="payment-method-card">
+                    <div class="form-label">
+                        <i class="fa-solid fa-wallet"></i>
+                        Select Wallet
+                    </div>
+                    <select class="form-select" id="withdraw-wallet-select" onchange="onWithdrawWalletChange()">
+                        <option value="">-- Select a wallet --</option>
+                        <!-- Options will be loaded from Firestore (wallet_types) -->
+                    </select>
                 </div>
 
                 <!-- Withdraw Package Selection -->
                 <div class="withdraw-form-group">
                     <div class="form-label">Select Withdraw Package</div>
                     <div class="package-grid" id="withdraw-package-grid">
-                        <!-- Packages will be loaded from Firestore -->
+                        <!-- Packages will be loaded from Firestore based on selected wallet -->
                     </div>
                 </div>
 
@@ -4030,6 +4043,11 @@
         let currentSubmissionFilter = 'all';
         let allSubmissions = []; // store all submissions for client-side filtering
 
+        // ========== NEW: WALLET TYPES / WITHDRAW WALLET VARIABLES ==========
+        let walletTypesListener = null;
+        let selectedWithdrawWalletKey = '';
+        let selectedWithdrawWalletName = '';
+
         // =============================================
 
         // --- APP CONFIG REAL-TIME LISTENER (Extended for all color fields) ---
@@ -4524,7 +4542,7 @@
             
             if (data.mainBalance !== undefined) {
                 document.getElementById('main-balance').textContent = data.mainBalance.toFixed(2);
-                document.getElementById('withdraw-available-balance').textContent = data.mainBalance.toFixed(2);
+                // Do not overwrite withdraw-available-balance here – it's now wallet-specific
             }
             
             if (data.referralIncome !== undefined) {
@@ -4556,6 +4574,9 @@
             if (data.verificationStatus) {
                 updateVerificationStatus(data.verificationStatus);
             }
+
+            // ✅ Update withdraw available balance if a wallet is selected
+            updateWithdrawAvailableBalance();
         }
 
         // ✅ COMPLETELY REWRITTEN SIGNUP – GUARANTEES REFERRAL REQUEST CREATION
@@ -4757,7 +4778,8 @@
                     console.log('User data updated from Firestore:', userData);
                     updateAppUI(userData);
                     setupSalaryListeners();
-                    loadWithdrawPackages();
+                    // REMOVED old loadWithdrawPackages() call – replaced by wallet types listener
+                    setupWalletTypesListener();   // Load wallet types and update withdraw page
                     setupGmailListeners();
                     setupSupportContactsListener();
                     
@@ -5103,52 +5125,180 @@
             }
         }
 
-        // LOAD WITHDRAW PACKAGES
-        async function loadWithdrawPackages() {
-            try {
-                const snapshot = await db.collection('withdraw_packages')
-                    .where('status', '==', 'active')
-                    .orderBy('priority', 'asc')
-                    .get();
-                
-                const packageGrid = document.getElementById('withdraw-package-grid');
-                packageGrid.innerHTML = '';
-                
-                if (snapshot.empty) {
-                    packageGrid.innerHTML = `
-                        <div style="grid-column: span 2; text-align: center; padding: 40px 20px; color: var(--text-light);">
-                            <i class="fa-solid fa-inbox" style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;"></i>
-                            <p>No withdraw packages available at the moment</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                snapshot.forEach(doc => {
-                    const pkg = doc.data();
-                    const packageCard = document.createElement('div');
-                    packageCard.className = 'package-card';
-                    packageCard.onclick = () => selectWithdrawPackage(pkg);
-                    packageCard.innerHTML = `
-                        <div class="package-amount">৳${pkg.withdrawAmount}</div>
-                        <div class="package-charge">Charge: ৳${pkg.charge}</div>
-                        <div class="package-receive">Receive: ৳${pkg.receiveAmount}</div>
-                    `;
-                    packageGrid.appendChild(packageCard);
-                });
-            } catch (error) {
-                console.error('Error loading withdraw packages:', error);
-                const packageGrid = document.getElementById('withdraw-package-grid');
-                packageGrid.innerHTML = `
-                    <div style="grid-column: span 2; text-align: center; padding: 40px 20px; color: var(--danger);">
-                        <i class="fa-solid fa-exclamation-circle" style="font-size: 48px; margin-bottom: 20px;"></i>
-                        <p>Error loading withdraw packages. Please try again later.</p>
-                    </div>
-                `;
+        // ========== NEW: WALLET TYPES & WITHDRAW WALLET LOGIC ==========
+
+        /**
+         * Set up real-time listener for wallet_types collection.
+         * Populates the wallet selection dropdown and restores previous selection.
+         */
+        function setupWalletTypesListener() {
+            if (walletTypesListener) {
+                walletTypesListener();
             }
+
+            walletTypesListener = db.collection('wallet_types')
+                .where('status', '==', 'active')
+                .orderBy('order', 'asc')
+                .onSnapshot((snapshot) => {
+                    const walletSelect = document.getElementById('withdraw-wallet-select');
+                    if (!walletSelect) return;
+
+                    // Save current selection
+                    const currentVal = walletSelect.value;
+
+                    // Clear all options except the first placeholder
+                    while (walletSelect.options.length > 1) {
+                        walletSelect.remove(1);
+                    }
+
+                    // Add new options from Firestore
+                    snapshot.forEach(doc => {
+                        const wallet = doc.data();
+                        const option = document.createElement('option');
+                        option.value = wallet.walletKey;
+                        option.textContent = wallet.title || wallet.walletKey;
+                        walletSelect.appendChild(option);
+                    });
+
+                    // Restore previous selection if it still exists
+                    if (currentVal && walletSelect.querySelector(`option[value="${currentVal}"]`)) {
+                        walletSelect.value = currentVal;
+                        onWithdrawWalletChange(); // refresh balance and packages
+                    } else {
+                        // No wallet selected – reset UI
+                        walletSelect.value = '';
+                        document.getElementById('withdraw-available-balance').textContent = '0.00';
+                        document.getElementById('selected-wallet-info').textContent = '';
+                        const packageGrid = document.getElementById('withdraw-package-grid');
+                        if (packageGrid) {
+                            packageGrid.innerHTML = '<div style="grid-column: span 2; text-align: center; padding: 20px; color: var(--text-light);">Please select a wallet to see packages.</div>';
+                        }
+                        // Reset calculation preview
+                        document.getElementById('calc-package-name').textContent = '-';
+                        document.getElementById('calc-amount').textContent = '৳0';
+                        document.getElementById('calc-charge').textContent = '৳0';
+                        document.getElementById('calc-receive').textContent = '৳0';
+                        selectedWithdrawPackage = null;
+                    }
+                }, (error) => {
+                    console.error('Error loading wallet types:', error);
+                });
         }
 
-        // SELECT WITHDRAW PACKAGE
+        /**
+         * Called when user changes the wallet dropdown.
+         * Updates selected wallet key, available balance, and reloads packages.
+         */
+        function onWithdrawWalletChange() {
+            const walletSelect = document.getElementById('withdraw-wallet-select');
+            if (!walletSelect) return;
+
+            selectedWithdrawWalletKey = walletSelect.value;
+            const selectedOption = walletSelect.options[walletSelect.selectedIndex];
+            selectedWithdrawWalletName = selectedOption ? selectedOption.textContent : '';
+
+            // Update info text
+            const walletInfo = document.getElementById('selected-wallet-info');
+            if (walletInfo) {
+                walletInfo.textContent = selectedWithdrawWalletKey ? `Selected Wallet: ${selectedWithdrawWalletName}` : '';
+            }
+
+            if (!selectedWithdrawWalletKey) {
+                // No wallet selected: reset
+                document.getElementById('withdraw-available-balance').textContent = '0.00';
+                const packageGrid = document.getElementById('withdraw-package-grid');
+                if (packageGrid) {
+                    packageGrid.innerHTML = '<div style="grid-column: span 2; text-align: center; padding: 20px; color: var(--text-light);">Please select a wallet to see packages.</div>';
+                }
+                // Reset calculation preview
+                document.getElementById('calc-package-name').textContent = '-';
+                document.getElementById('calc-amount').textContent = '৳0';
+                document.getElementById('calc-charge').textContent = '৳0';
+                document.getElementById('calc-receive').textContent = '৳0';
+                selectedWithdrawPackage = null;
+                return;
+            }
+
+            // Update available balance for selected wallet
+            updateWithdrawAvailableBalance();
+
+            // Load packages for this wallet
+            loadWithdrawPackagesForWallet(selectedWithdrawWalletKey);
+        }
+
+        /**
+         * Update the withdraw available balance based on selected wallet and userData.
+         */
+        function updateWithdrawAvailableBalance() {
+            if (!userData || !selectedWithdrawWalletKey) {
+                document.getElementById('withdraw-available-balance').textContent = '0.00';
+                return;
+            }
+            const balance = userData[selectedWithdrawWalletKey] !== undefined ? userData[selectedWithdrawWalletKey] : 0;
+            document.getElementById('withdraw-available-balance').textContent = balance.toFixed(2);
+        }
+
+        /**
+         * Load withdraw packages for a specific wallet type (walletKey).
+         * Uses real-time listener on withdraw_packages.
+         */
+        function loadWithdrawPackagesForWallet(walletType) {
+            if (!walletType) return;
+
+            // Remove previous listener if any
+            if (withdrawPackagesListener) {
+                withdrawPackagesListener();
+                withdrawPackagesListener = null;
+            }
+
+            const packageGrid = document.getElementById('withdraw-package-grid');
+            if (!packageGrid) return;
+
+            packageGrid.innerHTML = '<div style="grid-column: span 2; text-align: center; padding: 20px; color: var(--text-light);"><i class="fa-solid fa-spinner fa-spin"></i> Loading packages...</div>';
+
+            withdrawPackagesListener = db.collection('withdraw_packages')
+                .where('walletType', '==', walletType)
+                .where('status', '==', 'active')
+                .orderBy('priority', 'asc')
+                .onSnapshot((snapshot) => {
+                    packageGrid.innerHTML = '';
+
+                    if (snapshot.empty) {
+                        packageGrid.innerHTML = '<div style="grid-column: span 2; text-align: center; padding: 40px 20px; color: var(--text-light);"><i class="fa-solid fa-inbox" style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;"></i><p>No withdraw packages available for this wallet.</p></div>';
+                        return;
+                    }
+
+                    snapshot.forEach(doc => {
+                        const pkg = doc.data();
+                        pkg.id = doc.id; // store document ID for reference
+
+                        const packageCard = document.createElement('div');
+                        packageCard.className = 'package-card';
+                        packageCard.onclick = () => selectWithdrawPackage(pkg);
+                        packageCard.innerHTML = `
+                            <div class="package-amount">৳${pkg.withdrawAmount}</div>
+                            <div class="package-charge">Charge: ৳${pkg.charge}</div>
+                            <div class="package-receive">Receive: ৳${pkg.receiveAmount}</div>
+                        `;
+                        packageGrid.appendChild(packageCard);
+                    });
+
+                    // Reset any previously selected package
+                    selectedWithdrawPackage = null;
+                    document.getElementById('calc-package-name').textContent = '-';
+                    document.getElementById('calc-amount').textContent = '৳0';
+                    document.getElementById('calc-charge').textContent = '৳0';
+                    document.getElementById('calc-receive').textContent = '৳0';
+
+                }, (error) => {
+                    console.error('Error loading withdraw packages:', error);
+                    packageGrid.innerHTML = '<div style="grid-column: span 2; text-align: center; padding: 40px; color: var(--danger);"><i class="fa-solid fa-exclamation-circle" style="font-size: 48px;"></i><p>Error loading packages. Please try again later.</p></div>';
+                });
+        }
+
+        // ========== END WALLET TYPES LOGIC ==========
+
+        // SELECT WITHDRAW PACKAGE (existing, reused)
         function selectWithdrawPackage(pkg) {
             selectedWithdrawPackage = pkg;
             
@@ -5170,11 +5320,17 @@
             document.getElementById('calc-receive').textContent = `৳${pkg.receiveAmount}`;
         }
 
-        // SUBMIT WITHDRAW
+        // SUBMIT WITHDRAW (UPDATED – uses selected wallet)
         async function submitWithdraw() {
             const paymentMethodSelect = document.getElementById('withdraw-payment-method');
             const paymentMethod = paymentMethodSelect.value;
             const receiverNumber = document.getElementById('receiver-number').value;
+
+            // Wallet selection validation
+            if (!selectedWithdrawWalletKey) {
+                showToast('Please select a wallet', 'error');
+                return;
+            }
             
             if (!paymentMethod) {
                 showToast('Please select a payment method', 'error');
@@ -5196,9 +5352,11 @@
                 showToast('Please login again', 'error');
                 return;
             }
-            
-            if (userData.mainBalance < selectedWithdrawPackage.withdrawAmount) {
-                showToast('Insufficient balance', 'error');
+
+            // Check balance of the selected wallet
+            const walletBalance = userData[selectedWithdrawWalletKey] !== undefined ? userData[selectedWithdrawWalletKey] : 0;
+            if (walletBalance < selectedWithdrawPackage.withdrawAmount) {
+                showToast(`Insufficient balance in ${selectedWithdrawWalletName}`, 'error');
                 return;
             }
             
@@ -5215,7 +5373,7 @@
                     }
                     
                     const freshUserData = userDoc.data();
-                    const currentBalance = freshUserData.mainBalance || 0;
+                    const currentBalance = freshUserData[selectedWithdrawWalletKey] || 0;
                     
                     if (currentBalance < selectedWithdrawPackage.withdrawAmount) {
                         throw new Error('Insufficient balance');
@@ -5224,14 +5382,16 @@
                     const newBalance = currentBalance - selectedWithdrawPackage.withdrawAmount;
                     const newTotalWithdraw = (freshUserData.totalWithdraw || 0) + selectedWithdrawPackage.withdrawAmount;
                     
+                    // Update the selected wallet field dynamically
                     transaction.update(userDocRef, {
-                        mainBalance: newBalance,
+                        [selectedWithdrawWalletKey]: newBalance,
                         totalWithdraw: newTotalWithdraw,
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     
                     const withdrawData = {
                         uid: user.uid,
+                        walletType: selectedWithdrawWalletKey,   // ADDED: which wallet was used
                         packageId: selectedWithdrawPackage.id || '',
                         withdrawAmount: selectedWithdrawPackage.withdrawAmount,
                         charge: selectedWithdrawPackage.charge,
@@ -5248,9 +5408,11 @@
                 
                 showToast('Withdraw request submitted successfully! Processing time: 24-48 hours.');
                 
+                // Clear form (keep wallet selection)
                 document.getElementById('receiver-number').value = '';
                 paymentMethodSelect.value = '';
                 
+                // Clear package selection
                 const packageGrid = document.getElementById('withdraw-package-grid');
                 if (packageGrid) {
                     const packageCards = packageGrid.querySelectorAll('.package-card');
@@ -5261,6 +5423,7 @@
                 
                 selectedWithdrawPackage = null;
                 
+                // Reset calculation preview
                 document.getElementById('calc-package-name').textContent = '-';
                 document.getElementById('calc-amount').textContent = '৳0';
                 document.getElementById('calc-charge').textContent = '৳0';
@@ -5269,7 +5432,7 @@
             } catch (error) {
                 console.error('Error submitting withdraw:', error);
                 if (error.message === 'Insufficient balance') {
-                    showToast('Insufficient balance', 'error');
+                    showToast(`Insufficient balance in ${selectedWithdrawWalletName}`, 'error');
                 } else {
                     showToast('Failed to submit withdraw request', 'error');
                 }
@@ -5279,7 +5442,7 @@
             }
         }
 
-        // SUBMIT VERIFICATION
+        // SUBMIT VERIFICATION (unchanged)
         async function submitVerification() {
             const methodSelect = document.getElementById('verification-method-select');
             const methodId = methodSelect.value;
@@ -6536,6 +6699,11 @@
                     verificationMethodsListener = null;
                 }
                 
+                if (walletTypesListener) {
+                    walletTypesListener();
+                    walletTypesListener = null;
+                }
+                
                 if (liveTimerInterval) {
                     clearInterval(liveTimerInterval);
                     liveTimerInterval = null;
@@ -6583,6 +6751,8 @@
                 userDocRef = null;
                 appConfig = null;
                 selectedWithdrawPackage = null;
+                selectedWithdrawWalletKey = '';
+                selectedWithdrawWalletName = '';
                 
                 document.getElementById('app-container').style.display = 'none';
                 document.getElementById('auth-container').style.display = 'block';
@@ -6886,7 +7056,7 @@
             }
 
             // Proof requirements
-            const proofReq = job.proofRequirements || { screenshot: { required: false, count: 0 }, link: { required: false, text: { required: false } } };
+            const proofReq = job.proofRequirements || { screenshot: { required: false, count: 0 }, link: { required: false }, text: { required: false } };
             const screenshotCount = proofReq.screenshot?.count || 0;
             const requireScreenshot = proofReq.screenshot?.required || false;
             const requireLink = proofReq.link?.required || false;
@@ -7289,6 +7459,7 @@
             console.log('✅ Job Details text all bold');
             console.log('✅ Media slider with video support added');
             console.log('✅ Verify Now button hidden for verified users');
+            console.log('✅ WITHDRAW PAGE NOW WALLET-WISE – 100% FIRESTORE DRIVEN');
             updateTimerBasedOnConfig();
         });
     </script>
