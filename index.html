@@ -6130,7 +6130,7 @@
             }
         }
 
-        // ========== GMAIL FUNCTIONS ==========
+        // GMAIL FUNCTIONS
         function setupGmailListeners() {
             const user = auth.currentUser;
             if (!user) return;
@@ -6149,9 +6149,6 @@
                 });
 
             setupGmailStatusSummary(user.uid);
-            
-            // ✅ [FIX] নিচের লাইনটি যোগ করা হয়েছে – Gmail Wallet রিয়েল-টাইম আপডেটের জন্য
-            setupGmailWalletListener(user.uid);
             
             if (document.getElementById('gmail-processing-view')?.classList.contains('active')) {
                 setupGmailHistoryListener(user.uid);
