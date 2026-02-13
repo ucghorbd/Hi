@@ -7567,6 +7567,37 @@
 
             updateTimerBasedOnConfig();
         });
+
+        // =======================================================
+        // ✅ REFERRAL AUTO SIGNUP SYSTEM (Problem #13 Fix)
+        // =======================================================
+
+        window.addEventListener("load", function () {
+            // Step 1: Get referral code from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const referralCodeFromLink = urlParams.get("ref");
+
+            console.log("Referral Code Detected:", referralCodeFromLink);
+
+            // Step 2: If referral code exists → Open Signup Page Automatically
+            if (referralCodeFromLink && referralCodeFromLink.trim() !== "") {
+                console.log("Opening Signup Page Automatically...");
+                
+                // Use existing showSignUp function
+                showSignUp();
+
+                // Step 3: Auto Fill Referral Code Field
+                setTimeout(() => {
+                    const referralInput = document.getElementById("signup-referral");
+                    if (referralInput) {
+                        referralInput.value = referralCodeFromLink.trim();
+                        // Prevent user from editing referral code
+                        referralInput.readOnly = true;
+                        console.log("Referral Code Auto Filled Successfully!");
+                    }
+                }, 400);
+            }
+        });
     </script>
 </body>
 </html>
