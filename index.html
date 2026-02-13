@@ -3937,7 +3937,7 @@
         };
 
         // ImgBB API Key for screenshot uploads (replace with your actual key)
-        const IMGBB_API_KEY = '9276daf0afd6088b9690134480b8bdb6'; 
+        const IMGBB_API_KEY = '7a5b4006647a9ed5f3071e40a3ec356d'; 
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -7208,27 +7208,42 @@
 
         // ===== IMGBB UPLOAD FUNCTION =====
         // Uploads a screenshot file to ImgBB and returns the public image URL.
-        async function uploadScreenshotToImgBB(file) {
-            const formData = new FormData();
-            formData.append('image', file);
+        async function uploadToImgBB(file) {
 
-            const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-                method: 'POST',
-                body: formData
-            });
+  try {
 
-            const data = await response.json();
+    const formData = new FormData();
+    formData.append("image", file);
 
-            if (!data.success) {
-                throw new Error('Image upload failed: ' + (data.error?.message || 'Unknown error'));
-            }
+    const response = await fetch(
+      `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,
+      {
+        method: "POST",
+        body: formData
+      }
+    );
 
-            // Return only the image URL
-            return data.data.url;
-        }
+    const data = await response.json();
+
+    console.log("ImgBB Response:", data);
+
+    if (!data.success) {
+      throw new Error(data.error.message);
+    }
+
+    return data.data.url;
+
+  } catch (error) {
+
+    console.error("Upload Error:", error);
+    showToast("❌ Upload failed: " + error.message, "error");
+
+    throw error;
+  }
+}
 
         // 5. Submit Work Proof – NOW WITH REAL IMG UPLOAD (saves URL, never shows to user)
-        async function submitFreeJobProof(jobId) {
+         function submitFreeJobProof(jobId) {
             const user = auth.currentUser;
             if (!user || !userData) {
                 showToast('Please login again', 'error');
